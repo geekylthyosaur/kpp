@@ -13,6 +13,7 @@ public class Configuration {
     private int serviceTimeMax;
     private GenerationStrategy clientGenerationStrategy;
     private int maxClientsInside;
+    private Thread clientGenerationThread;
 
     private Configuration() {
     }
@@ -77,5 +78,13 @@ public class Configuration {
             instance = new Configuration();
         }
         return instance;
+    }
+
+    public void setClientGenerationThread(Thread thread) {
+        clientGenerationThread = thread;
+    }
+
+    public Thread getClientGenerationThread() {
+        return clientGenerationThread;
     }
 }

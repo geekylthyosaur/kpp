@@ -13,6 +13,8 @@ import com.railway_station.simulator.client.generator.ClientGenerator;
 import com.railway_station.simulator.config.Configuration;
 import com.railway_station.simulator.server.payload_models.ClientReachedCashRegisterEventObject;
 import com.railway_station.simulator.server.payload_models.ConfigPayload;
+import com.railway_station.simulator.server.payload_models.StartGeneration;
+import com.railway_station.simulator.server.payload_models.StopGeneration;
 import com.railway_station.simulator.station_building.CashRegister;
 import com.railway_station.simulator.station_building.StationBuilding;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,8 @@ public class ServerRunner implements CommandLineRunner {
         this.server.addDisconnectListener(onDisconnected());
         this.server.addEventListener("configuration", ConfigPayload.class, onConfiguration());
         this.server.addEventListener("client_reached_cash_register", ClientReachedCashRegisterEventObject.class, onClientReachedCashRegister());
+        this.server.addEventListener("stop_generation", StopGeneration.class, onStopGeneration());
+        this.server.addEventListener("start_generation", StartGeneration.class, onStartGeneration());
     }
 
     private ConnectListener onConnected() {
@@ -77,6 +81,7 @@ public class ServerRunner implements CommandLineRunner {
 
                 ClientGenerator clientGenerator = new ClientGenerator(config.getClientGenerationStrategy());
                 Thread clientGenerationThread = new Thread(clientGenerator::generate);
+                config.setClientGenerationThread(clientGenerationThread);
                 clientGenerationThread.start();
             }
         };
@@ -102,6 +107,27 @@ public class ServerRunner implements CommandLineRunner {
             }
             CashRegister cashRegister = StationBuilding.getInstance().getCashRegister(cashRegisterId);
             cashRegister.addClient(stationClient);
+        };
+    }
+
+    private DataListener<StopGeneration> onStopGeneration() {
+        return (client, eventPayload, ackSender) -> {
+            Configuration config = Configuration.getInstance();
+            Thread clientGenerationThread = config.getClientGenerationThread();
+            clientGenerationThread.interrupt();
+        };
+    }
+
+    private DataListener<StartGeneration> onStartGeneration() {
+        return (client, eventPayload, ackSender) -> {
+            String generationStrategy = eventPayload.generationStrategy;
+            Configuration config = Configuration.getInstance();
+            config.setClientGenerationStrategy(generationStrategy);
+
+            ClientGenerator clientGenerator = new ClientGenerator(config.getClientGenerationStrategy());
+            Thread clientGenerationThread = new Thread(clientGenerator::generate);
+            config.setClientGenerationThread(clientGenerationThread);
+            clientGenerationThread.start();
         };
     }
 
