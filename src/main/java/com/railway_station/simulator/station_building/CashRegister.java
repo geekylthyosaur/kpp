@@ -22,7 +22,7 @@ public class CashRegister {
     private int id;
     private boolean opened;
     private ConcurrentSkipListMap<Integer, Client> clients = new ConcurrentSkipListMap<>((a, b) -> b.compareTo(a)); // Descending order
-    Thread runningThread;
+    private Thread runningThread;
 
 
     public CashRegister(int id) {
@@ -55,7 +55,9 @@ public class CashRegister {
         runningThread.start();
     }
     public void close(){
-        runningThread.interrupt();
+        if (runningThread != null) {
+            runningThread.interrupt();
+        }
     }
     public void serve () {
         while (true) {

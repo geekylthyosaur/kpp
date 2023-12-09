@@ -85,6 +85,9 @@ public class Configuration {
     }
 
     public Thread getClientGenerationThread() {
+        if (clientGenerationThread == null) {
+            return new Thread();
+        }
         return clientGenerationThread;
     }
 }

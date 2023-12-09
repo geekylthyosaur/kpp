@@ -20,6 +20,7 @@ public class StationBuilding {
     private static StationBuilding instance;
     private List<CashRegister> cashRegisters;
     private int clientsInsideCount;
+    private Thread reservedCashRegisterThread;
 
     private StationBuilding() {
         cashRegisters = new ArrayList<CashRegister>();
@@ -42,6 +43,7 @@ public class StationBuilding {
             } catch (JsonProcessingException e) {
             }
         });
+        reservedCashRegisterThread = reservedCashRegisterSimulator;
         reservedCashRegisterSimulator.start();
     }
 
@@ -138,5 +140,16 @@ public class StationBuilding {
 
     public CashRegister getCashRegister(int id) {
         return cashRegisters.get(id);
+    }
+
+    public void setReservedCashRegisterThread(Thread thread) {
+        reservedCashRegisterThread = thread;
+    }
+
+    public Thread getReservedCashRegisterThread() {
+        if (reservedCashRegisterThread == null) {
+            return new Thread();
+        }
+        return reservedCashRegisterThread;
     }
 }
