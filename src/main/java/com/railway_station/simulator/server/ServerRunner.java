@@ -128,7 +128,6 @@ public class ServerRunner implements CommandLineRunner {
             }
             Thread clientGenerationThread = config.getClientGenerationThread();
             clientGenerationThread.interrupt();
-            System.out.println("ok");
         };
     }
 
