@@ -38,4 +38,9 @@ public class CommonClient implements Client {
     public ClientState getState() {
         return state;
     }
+
+    @Override
+    public String getType() {
+        return "common";
+    }
 }

@@ -11,4 +11,9 @@ public class WithChild extends ClientDecorator {
     public int getPriority() {
         return super.getPriority() * 2;
     }
+
+    @Override
+    public String getType() {
+        return "with_child";
+    }
 }

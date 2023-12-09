@@ -27,18 +27,18 @@ public class CashRegister {
 
     public CashRegister(int id) {
         this.id = id;
-        this.opened = opened;
+        this.opened = true;
     }
 
     private synchronized boolean thereAreClients() {
         return !clients.isEmpty();
     }
 
-    public int getId() {
+    public synchronized int getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public synchronized void setId(int id) {
         this.id = id;
     }
 
@@ -46,8 +46,8 @@ public class CashRegister {
         return opened;
     }
 
-    public void setOpened(boolean opened) {
-        this.opened = opened;
+    public void toggleOpened() {
+        this.opened = !this.opened;
     }
 
     public void open(){
@@ -63,7 +63,6 @@ public class CashRegister {
                 try {
                     TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getServiceTimeMin());
                 } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
                 }
                 continue;
             }
@@ -82,7 +81,6 @@ public class CashRegister {
             try {
                 TimeUnit.MILLISECONDS.sleep(servingTime * desiredTicketsCount);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
             }
             CurrentTime endTime = new CurrentTime();
 
@@ -110,6 +108,14 @@ public class CashRegister {
         }
         clients.put(lastKey, client);
         StationBuilding.getInstance().increaseClientsInsideCount();
+    }
+
+    public synchronized void setClients(ConcurrentSkipListMap<Integer, Client> clients) {
+        this.clients = clients;
+    }
+
+    public synchronized ConcurrentSkipListMap<Integer, Client> getClients() {
+        return this.clients;
     }
 }
 

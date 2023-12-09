@@ -12,7 +12,7 @@ public class Configuration {
     private int serviceTimeMin;
     private int serviceTimeMax;
     private GenerationStrategy clientGenerationStrategy;
-    private int maxClientCount;
+    private int maxClientsInside;
 
     private Configuration() {
     }
@@ -49,12 +49,12 @@ public class Configuration {
         this.serviceTimeMax = serviceTimeMax;
     }
 
-    public int getMaxClientCount() {
-        return maxClientCount;
+    public int getMaxClientsInside() {
+        return maxClientsInside;
     }
 
-    public void setMaxClientCount(int maxClientCount) {
-        this.maxClientCount = maxClientCount;
+    public void setMaxClientsInside(int maxClientsInside) {
+        this.maxClientsInside = maxClientsInside;
     }
 
     public void setClientGenerationStrategy(String generationStrategy) {

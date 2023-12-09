@@ -11,4 +11,9 @@ public class Military extends ClientDecorator {
     public int getPriority() {
         return super.getPriority() * 3;
     }
+
+    @Override
+    public String getType() {
+        return "military";
+    }
 }

@@ -34,4 +34,9 @@ public class ClientDecorator implements Client {
     public ClientState getState() {
         return wrapee.getState();
     }
+
+    @Override
+    public String getType() {
+        return "";
+    }
 }

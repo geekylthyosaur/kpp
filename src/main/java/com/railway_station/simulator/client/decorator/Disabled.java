@@ -11,4 +11,9 @@ public class Disabled extends ClientDecorator {
     public int getPriority() {
         return super.getPriority() * 4;
     }
+
+    @Override
+    public String getType() {
+        return "disabled";
+    }
 }

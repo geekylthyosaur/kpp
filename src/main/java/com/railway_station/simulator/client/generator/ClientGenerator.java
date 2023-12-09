@@ -39,20 +39,12 @@ public class ClientGenerator {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            if (stationBuilding.getClientsInsideCount() >= Configuration.getInstance().getMaxClientCount()) {
+            if (stationBuilding.getClientsInsideCount() >= Configuration.getInstance().getMaxClientsInside()) {
                 continue;
             }
             String clientName = ClientFactory.generateRandomName();
             int desiredTicketsCount = ClientFactory.generateDesiredTicketsCount();
-
-            List<String> specialClientTypes = new ArrayList<>();
-            specialClientTypes.add("desabled");
-            specialClientTypes.add("military");
-            specialClientTypes.add("with_child");
-
-            Random random = new Random();
-            int randomIndex = random.nextInt(specialClientTypes.size());
-            String clientType = specialClientTypes.get(randomIndex);
+            String clientType = generateRandomClientType();
 
             Map<String, Object> clientData = new HashMap<>();
             currentMaxClientId++;
@@ -67,5 +59,18 @@ public class ClientGenerator {
             ServerRunner server = ServerRunner.getInstance();
             server.socketEmit("client_created", json);
         }
+    }
+
+    private String generateRandomClientType() {
+        List<String> clientTypes = new ArrayList<>(){};
+        clientTypes.add("common");
+        clientTypes.add("disabled");
+        clientTypes.add("military");
+        clientTypes.add("with_child");
+
+        Random random = new Random();
+        int randomIndex = random.nextInt(clientTypes.size());
+        String clientType = clientTypes.get(randomIndex);
+        return clientType;
     }
 }

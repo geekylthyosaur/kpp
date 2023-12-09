@@ -8,17 +8,16 @@ import com.railway_station.simulator.client.Client;
 import com.railway_station.simulator.client.CommonClient;
 import com.railway_station.simulator.client.decorator.Disabled;
 import com.railway_station.simulator.client.decorator.Military;
+import com.railway_station.simulator.client.decorator.WithChild;
 import com.railway_station.simulator.client.generator.ClientGenerator;
 import com.railway_station.simulator.config.Configuration;
-import com.railway_station.simulator.server.payload_models.ClientReachedCashRegisterObject;
-import com.railway_station.simulator.server.payload_models.ConfigObject;
+import com.railway_station.simulator.server.payload_models.ClientReachedCashRegisterEventObject;
+import com.railway_station.simulator.server.payload_models.ConfigPayload;
 import com.railway_station.simulator.station_building.CashRegister;
 import com.railway_station.simulator.station_building.StationBuilding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-
-import java.util.concurrent.TimeUnit;
 
 @Component
 public class ServerRunner implements CommandLineRunner {
@@ -27,15 +26,16 @@ public class ServerRunner implements CommandLineRunner {
 
     private final SocketIOServer server;
 
+
+
     @Autowired
     public ServerRunner(SocketIOServer server) {
         this.server = server;
         ServerRunner.instance = this;
         this.server.addConnectListener(onConnected());
         this.server.addDisconnectListener(onDisconnected());
-        this.server.addEventListener("chatevent", ConfigObject.class, onchatevent());
-        this.server.addEventListener("configuration", ConfigObject.class, onConfiguration());
-        this.server.addEventListener("client_reached_cash_register", ClientReachedCashRegisterObject.class, onClientReachedCashRegister());
+        this.server.addEventListener("configuration", ConfigPayload.class, onConfiguration());
+        this.server.addEventListener("client_reached_cash_register", ClientReachedCashRegisterEventObject.class, onClientReachedCashRegister());
     }
 
     private ConnectListener onConnected() {
@@ -57,36 +57,19 @@ public class ServerRunner implements CommandLineRunner {
         server.stop();
     }
 
-    private DataListener<ConfigObject> onchatevent() {
-        return (client, data, ackSender) -> {
-            server.getBroadcastOperations().sendEvent("chatevent", data);
-            Thread abc = new Thread(() -> {
-                while (true) {
-                    server.getBroadcastOperations().sendEvent("chatevent", "from server");
-                    try {
-                        TimeUnit.SECONDS.sleep(3);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
-            abc.start();
-        };
-    }
-
-    private DataListener<ConfigObject> onConfiguration() {
+    private DataListener<ConfigPayload> onConfiguration() {
         return (client, configPayload, ackSender) -> {
-            int cashRegisterCount = configPayload.getCashRegisterCount();
-            int minServingTime = configPayload.getMinServingTime();
-            int maxServingTime = configPayload.getMaxServingTime();
-            String generationStrategy = configPayload.getGenerationStrategy();
+            int cashRegisterCount = configPayload.cashRegisterCount;
+            int minServingTime = configPayload.minServingTime;
+            int maxServingTime = configPayload.maxServingTime;
+            String generationStrategy = configPayload.generationStrategy;
 
             Configuration config = Configuration.getInstance();
             config.setEntryCount(cashRegisterCount);
             config.setServiceTimeMin(minServingTime);
             config.setServiceTimeMax(maxServingTime);
             config.setClientGenerationStrategy(generationStrategy);
-            config.setMaxClientCount(20);
+            config.setMaxClientsInside(100);
 
             if (!ClientGenerator.generationRunning) {
                 StationBuilding stationBuilding = StationBuilding.getInstance();
@@ -99,13 +82,13 @@ public class ServerRunner implements CommandLineRunner {
         };
     }
 
-    private DataListener<ClientReachedCashRegisterObject> onClientReachedCashRegister() {
+    private DataListener<ClientReachedCashRegisterEventObject> onClientReachedCashRegister() {
         return (client, eventPayload, ackSender) -> {
-            int cashRegisterId = eventPayload.getCashRegisterId();
-            int clientId = eventPayload.getClientId();
-            String clientName = eventPayload.getClientName();
-            int desiredTicketsCount = eventPayload.getDesiredTicketsCount();
-            String clientType = eventPayload.getClientType();
+            int cashRegisterId = eventPayload.cashRegisterId;
+            int clientId = eventPayload.clientId;
+            String clientName = eventPayload.clientName;
+            int desiredTicketsCount = eventPayload.desiredTicketsCount;
+            String clientType = eventPayload.clientType;
 
             Client stationClient = new CommonClient(clientId, clientName, desiredTicketsCount);
             if (clientType == "disabled") {
@@ -115,7 +98,7 @@ public class ServerRunner implements CommandLineRunner {
                 stationClient = new Military(stationClient);
             }
             if (clientType == "with_child") {
-                stationClient = new Military(stationClient);
+                stationClient = new WithChild(stationClient);
             }
             CashRegister cashRegister = StationBuilding.getInstance().getCashRegister(cashRegisterId);
             cashRegister.addClient(stationClient);
