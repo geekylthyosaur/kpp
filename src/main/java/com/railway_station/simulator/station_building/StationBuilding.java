@@ -48,7 +48,7 @@ public class StationBuilding {
     public void simulateReservedCashRegister(int cashRegistersCount) throws JsonProcessingException {
         while (true) {
             try {
-                TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getServiceTimeMin() * 4);
+                TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getServiceTimeMax() * 15);
             } catch (InterruptedException e) {
             }
             if (getClientsInsideCount() >= Configuration.getInstance().getMaxClientsInside()) {
@@ -60,14 +60,14 @@ public class StationBuilding {
             changeCashRegister(cashRegisterId, 0);
 
             try {
-                TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getServiceTimeMin() * 5);
+                TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getServiceTimeMin() * 20);
             } catch (InterruptedException e) {
             }
 
             changeCashRegister(0, cashRegisterId);
 
             try {
-                TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getServiceTimeMin() * 1);
+                TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getServiceTimeMin() * 5);
             } catch (InterruptedException e) {
             }
         }
@@ -78,6 +78,7 @@ public class StationBuilding {
         closedCashRegister.close();
 
         ConcurrentSkipListMap<Integer, Client> entryClients = closedCashRegister.getClients();
+        closedCashRegister.setClients(new ConcurrentSkipListMap<>((a, b) -> b.compareTo(a)));
 
         ArrayList<ClientObj> clients = new ArrayList<>();
         for (Map.Entry<Integer, Client> entry : entryClients.entrySet()) {
@@ -94,7 +95,6 @@ public class StationBuilding {
         payload.closedCashRegisterId = closedCashRegisterId;
         payload.openedCashRegisterId = openedCashRegisterId;
         payload.clients = clients;
-        closedCashRegister.setClients(new ConcurrentSkipListMap<>((a, b) -> b.compareTo(a)));
 
         ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
         String json = ((com.fasterxml.jackson.databind.ObjectWriter) ow).writeValueAsString(payload);
