@@ -60,14 +60,14 @@ public class StationBuilding {
             changeCashRegister(cashRegisterId, 0);
 
             try {
-                TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getServiceTimeMin() * 20);
+                TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getServiceTimeMax() * 20);
             } catch (InterruptedException e) {
             }
 
             changeCashRegister(0, cashRegisterId);
 
             try {
-                TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getServiceTimeMin() * 5);
+                TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getServiceTimeMax() * 5);
             } catch (InterruptedException e) {
             }
         }
