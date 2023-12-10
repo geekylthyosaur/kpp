@@ -51,6 +51,7 @@ public class RailwaySimulator {
             cashRegister.close();
         }
         stationBuilding.setCashRegisters(new ArrayList<CashRegister>());
+        stationBuilding.setClientsInsideCount(0);
         if (clientGenerationThread != null) {
             clientGenerationThread.interrupt();
         }

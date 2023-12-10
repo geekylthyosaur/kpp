@@ -118,6 +118,10 @@ public class StationBuilding {
         return cashRegisters;
     }
 
+    public void setClientsInsideCount(int count) {
+        clientsInsideCount = count;
+    }
+
     public synchronized int getClientsInsideCount() {
         return clientsInsideCount;
     }

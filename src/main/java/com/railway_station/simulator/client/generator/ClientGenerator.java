@@ -36,7 +36,7 @@ public class ClientGenerator {
             if (stationBuilding.getClientsInsideCount() >= Configuration.getInstance().getMaxClientsCountInsideBuilding()) {
                 maxClientsCountReached = true;
                 continue;
-            } else if (maxClientsCountReached && (stationBuilding.getClientsInsideCount() > (Configuration.getInstance().getMaxClientsCountInsideBuilding() * 0.7))) {
+            } else if (maxClientsCountReached && (stationBuilding.getClientsInsideCount() >= (Configuration.getInstance().getMaxClientsCountInsideBuilding() * 0.7))) {
                 continue;
             } else {
                 maxClientsCountReached = false;
@@ -57,6 +57,7 @@ public class ClientGenerator {
 
             ServerRunner server = ServerRunner.getInstance();
             server.socketEmit("client_created", json);
+            StationBuilding.getInstance().increaseClientsInsideCount();
         }
     }
 
@@ -70,5 +71,9 @@ public class ClientGenerator {
         Random random = new Random();
         int randomIndex = random.nextInt(clientTypes.size());
         return clientTypes.get(randomIndex).name();
+    }
+
+    public void setMaxClientsCountReached(boolean isReached) {
+        maxClientsCountReached = isReached;
     }
 }

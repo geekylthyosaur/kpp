@@ -97,7 +97,6 @@ public class CashRegister {
             lastKey--;
         }
         clients.put(lastKey, client);
-        StationBuilding.getInstance().increaseClientsInsideCount();
     }
 
     public synchronized void setClients(ConcurrentSkipListMap<Integer, Client> clients) {
