@@ -18,6 +18,7 @@ public class ClientGenerator {
     public static boolean generationRunning = false;
     private StationBuilding stationBuilding = StationBuilding.getInstance();
     private int currentMaxClientId = -1;
+    private boolean maxClientsCountReached = false;
 
     public ClientGenerator(GenerationStrategy strategy) {
         this.currentStrategy = strategy;
@@ -33,7 +34,12 @@ public class ClientGenerator {
                 return null;
             }
             if (stationBuilding.getClientsInsideCount() >= Configuration.getInstance().getMaxClientsCountInsideBuilding()) {
+                maxClientsCountReached = true;
                 continue;
+            } else if (maxClientsCountReached && (stationBuilding.getClientsInsideCount() > (Configuration.getInstance().getMaxClientsCountInsideBuilding() * 0.7))) {
+                continue;
+            } else {
+                maxClientsCountReached = false;
             }
             String clientName = ClientFactory.generateRandomName();
             int desiredTicketsCount = ClientFactory.generateDesiredTicketsCount();

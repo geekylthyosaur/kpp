@@ -42,6 +42,9 @@ public class ServerRunner implements CommandLineRunner {
     private DisconnectListener onDisconnected() {
         return client -> {
             System.out.println("Disconnected");
+            if (simulator != null) {
+                simulator.stopSimulation();
+            }
         };
     }
 
