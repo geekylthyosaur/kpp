@@ -9,33 +9,66 @@ import androidx.compose.ui.*
 import androidx.compose.ui.draw.*
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.unit.*
+import domain.model.configuration.*
+import domain.model.log.*
+import domain.serverApi.*
 import presenter.components.*
 import presenter.components.logs.*
 import presenter.drawableComponents.*
 
+val backgroundColor = Color(0xFFAAAABB)
+val lighterBackgroundColor = Color(0xFFCCCCDD)
+val lightBackgroundColor = Color(0xFFEEEEFF)
+
 @Composable
 fun MainWindow(
-    modifier: Modifier
+    modifier: Modifier,
+    serverApi: ServerApi
 ) {
+    var isSimulationStarted by remember {
+        mutableStateOf(false)
+    }
+
+    var cashRegistersCount by remember {
+        mutableIntStateOf(1)
+    }
+
+    var exitsCount by remember {
+        mutableIntStateOf(1)
+    }
+
     var drawingOffset by remember {
         mutableIntStateOf(0)
     }
 
+    val servedClientLogs = remember {
+        mutableStateListOf<ServedClientLog>()
+    }
+
     Row(
-        modifier = modifier
-            .background(Color(0xFFCCCCDD))
+        modifier = modifier.background(backgroundColor)
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth(0.25f)
+                .fillMaxWidth(0.275f)
                 .fillMaxHeight()
         ) {
-            UiPanel(
-                modifier = Modifier.fillMaxWidth(),
-                onExtraOffset = { extraOffset ->
-                    drawingOffset += extraOffset
-                }
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp)
+                    .clip(RoundedCornerShape(4f))
+                    .background(lighterBackgroundColor)
+                    .border(1.dp, Color.Black, RoundedCornerShape(4f)),
+                contentAlignment = Alignment.Center
+            ) {
+                UiPanel(
+                    modifier = Modifier.fillMaxWidth(),
+                    onExtraOffset = { extraOffset ->
+                        drawingOffset += extraOffset
+                    }
+                )
+            }
             Divider(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -43,14 +76,50 @@ fun MainWindow(
                 color = Color.Black,
                 thickness = 1.dp
             )
-            ManagementPanel(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight(0.5f),
-                onStartSimulation = { cashRegistersCount, exitsCount, minServingTime, maxServingTime, selectedStrategy ->
-
-                }
-            )
+                    .height(384.dp)
+                    .padding(4.dp)
+                    .clip(RoundedCornerShape(4f))
+                    .background(lighterBackgroundColor)
+                    .border(1.dp, Color.Black, RoundedCornerShape(4f)),
+                contentAlignment = Alignment.Center
+            ) {
+                ManagementPanel(
+                    modifier = Modifier.fillMaxSize(),
+                    isSimulationStarted = isSimulationStarted,
+                    onIsSimulationStartedChange = { newValue ->
+                        isSimulationStarted = newValue
+                    },
+                    onCashRegistersCountChange = { iCashRegistersCount ->
+                        if (!isSimulationStarted) {
+                            cashRegistersCount = iCashRegistersCount
+                        }
+                    },
+                    onExitsCountChange = { iExitsCount ->
+                        if (!isSimulationStarted) {
+                            exitsCount = iExitsCount
+                        }
+                    },
+                    onStartSimulation = { minServingTime, maxServingTime, selectedStrategy ->
+                        serverApi.sendConfiguration(
+                            Configuration(
+                                cashRegisterCount = cashRegistersCount + 1,
+                                exitsCount = exitsCount,
+                                minServingTime = minServingTime,
+                                maxServingTime = maxServingTime,
+                                generationStrategy = selectedStrategy.stringKey,
+                                maxClientsInsideBuilding = 200
+                            )
+                        )
+                    },
+                    onStopSimulation = {
+                        serverApi.notifyAboutSimulationStop()
+                        servedClientLogs.clear()
+                    }
+                )
+            }
             Divider(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -58,10 +127,20 @@ fun MainWindow(
                 color = Color.Black,
                 thickness = 1.dp
             )
-            LogPanel(
-                modifier = Modifier.fillMaxSize(),
-                logs = emptyList()
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(4.dp)
+                    .clip(RoundedCornerShape(4f))
+                    .background(lighterBackgroundColor)
+                    .border(1.dp, Color.Black, RoundedCornerShape(4f)),
+                contentAlignment = Alignment.Center
+            ) {
+                LogPanel(
+                    modifier = Modifier.fillMaxSize(),
+                    servedClientLogs = servedClientLogs
+                )
+            }
         }
         Divider(
             modifier = Modifier
@@ -74,16 +153,23 @@ fun MainWindow(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(8.dp)
-                .clip(RoundedCornerShape(1))
+                .clip(RoundedCornerShape(4f))
+                .background(lighterBackgroundColor)
+                .border(1.dp, Color.Black, RoundedCornerShape(4f)),
+            contentAlignment = Alignment.Center
         ) {
-            CashRegisterField(
+            StationField(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color(0xFFEEEEFF)),
-                drawingOffset = drawingOffset,
-                cashRegistersCount = 12,
-                exitsCount = 4,
-                clients = emptyList()
+                    .background(lightBackgroundColor),
+                drawingOffset = drawingOffset.toFloat(),
+                cashRegistersCount = cashRegistersCount,
+                exitsCount = exitsCount,
+                serverApi = serverApi,
+                onLogAdded = { log ->
+                    servedClientLogs.add(log)
+                },
+                isSimulationStarted = isSimulationStarted
             )
         }
     }

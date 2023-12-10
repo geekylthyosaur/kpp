@@ -5,7 +5,8 @@ import kotlinx.serialization.*
 @Serializable
 data class ClientService(
     @SerialName("clientId") val clientId: Int,
+    @SerialName("clientName") val clientName: String,
+    @SerialName("clientType") val clientType: String,
     @SerialName("cashRegisterId") val cashRegisterId: Int,
-    @SerialName("startTime") val startTime: Long,
-    @SerialName("endTime") val endTime: Long
+    @SerialName("desiredTicketsCount") val desiredTicketsCount: Int
 )

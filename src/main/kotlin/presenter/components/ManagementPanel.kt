@@ -12,22 +12,27 @@ import kotlin.math.*
 @Composable
 fun ManagementPanel(
     modifier: Modifier,
-    onStartSimulation: (Int, Int, Int, Int, ClientGenerationStrategy) -> Unit
+    isSimulationStarted: Boolean,
+    onIsSimulationStartedChange: (Boolean) -> Unit,
+    onCashRegistersCountChange: (Int) -> Unit,
+    onExitsCountChange: (Int) -> Unit,
+    onStartSimulation: (Int, Int, ClientGenerationStrategy) -> Unit,
+    onStopSimulation: () -> Unit
 ) {
     var cashRegistersCount by remember {
-        mutableIntStateOf(1)
+        mutableStateOf("1")
     }
 
     var exitsCount by remember {
-        mutableIntStateOf(1)
+        mutableStateOf("1")
     }
 
     var minServingTime by remember {
-        mutableIntStateOf(1000)
+        mutableStateOf("1000")
     }
 
     var maxServingTime by remember {
-        mutableIntStateOf(1000)
+        mutableStateOf("1000")
     }
 
     var selectedStrategy by remember {
@@ -45,73 +50,82 @@ fun ManagementPanel(
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
         TextField(
-            value = cashRegistersCount.toString(),
+            value = cashRegistersCount,
             onValueChange = { newValue ->
                 val filtered = newValue.filterIndexed { index, char -> char.isDigit() && index < 8 }
-                cashRegistersCount = try {
-                    max(min(filtered.toInt(), 12), 1)
-                } catch (_: Exception) {
-                    1
-                }
+                cashRegistersCount = filtered
+
+                try {
+                    max(min(filtered.toInt(), 11), 1).toString().apply {
+                        onCashRegistersCountChange(this.toInt())
+                    }
+                } catch (_: Exception) { }
             },
             label = {
                 Text(
                     text = "Кількість кас (макс. 12)"
                 )
-            }
+            },
+            enabled = !isSimulationStarted
         )
         TextField(
-            value = exitsCount.toString(),
+            value = exitsCount,
             onValueChange = { newValue ->
                 val filtered = newValue.filterIndexed { index, char -> char.isDigit() && index < 8 }
-                exitsCount = try {
-                    max(min(filtered.toInt(), 12), 1)
-                } catch (_: Exception) {
-                    1
-                }
+                exitsCount = filtered
+
+                try {
+                    max(min(filtered.toInt(), 4), 1).toString().apply {
+                        onExitsCountChange(this.toInt())
+                    }
+                } catch (_: Exception) { }
             },
             label = {
                 Text(
                     text = "Кількість входів (макс. 4)"
                 )
-            }
+            },
+            enabled = !isSimulationStarted
         )
         TextField(
-            value = minServingTime.toString(),
+            value = minServingTime,
             onValueChange = { newValue ->
                 val filtered = newValue.filterIndexed { index, char -> char.isDigit() && index < 8 }
-                minServingTime = try {
-                    max(filtered.toInt(), 1000)
-                } catch (_: Exception) {
-                    1000
-                }
-                maxServingTime = max(maxServingTime, minServingTime)
+                minServingTime = filtered
+
+                try {
+                    max(filtered.toInt(), 1000).toString().apply {
+                        maxServingTime = max(maxServingTime.toInt(), minServingTime.toInt()).toString()
+                    }
+                } catch (_: Exception) { }
             },
             label = {
                 Text(
                     text = "Мінімальний час на квиток (ms)"
                 )
-            }
+            },
+            enabled = !isSimulationStarted
         )
         TextField(
-            value = maxServingTime.toString(),
+            value = maxServingTime,
             onValueChange = { newValue ->
                 val filtered = newValue.filterIndexed { index, char -> char.isDigit() && index < 8 }
-                maxServingTime = try {
-                    max(filtered.toInt(), minServingTime)
-                } catch (_: Exception) {
-                    minServingTime
-                }
+                maxServingTime = filtered
+
+                try {
+                    max(filtered.toInt(), minServingTime.toInt()).toString()
+                } catch (_: Exception) { }
             },
             label = {
                 Text(
                     text = "Максимальний час на квиток (ms)"
                 )
-            }
+            },
+            enabled = !isSimulationStarted
         )
         ExposedDropdownMenuBox(
             modifier = Modifier,
-            expanded = isStrategyMenuExpanded,
+            expanded = isStrategyMenuExpanded && !isSimulationStarted,
             onExpandedChange = { newValue ->
                 isStrategyMenuExpanded = newValue
             }
@@ -121,11 +135,16 @@ fun ManagementPanel(
                 onValueChange = {},
                 trailingIcon = {
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = isStrategyMenuExpanded)
-                }
+                },
+                label = {
+                    Text(
+                        text = "Стратегія появи клієнтів"
+                    )
+                },
+                enabled = !isSimulationStarted
             )
-
             ExposedDropdownMenu(
-                expanded = isStrategyMenuExpanded,
+                expanded = isStrategyMenuExpanded && !isSimulationStarted,
                 onDismissRequest = {
                     isStrategyMenuExpanded = false
                 }
@@ -144,20 +163,39 @@ fun ManagementPanel(
                 }
             }
         }
-        Button(
-            onClick = {
-                onStartSimulation(
-                    cashRegistersCount,
-                    exitsCount,
-                    minServingTime,
-                    maxServingTime,
-                    selectedStrategy
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = {
+                    onIsSimulationStartedChange(true)
+                    try {
+                        onStartSimulation(
+                            minServingTime.toInt(),
+                            maxServingTime.toInt(),
+                            selectedStrategy
+                        )
+                    } catch (_: Exception) { }
+                },
+                enabled = !isSimulationStarted
+            ) {
+                Text(
+                    text = "Запуск"
                 )
             }
-        ) {
-            Text(
-                text = "Запуск"
-            )
+            Button(
+                onClick = {
+                    onIsSimulationStartedChange(false)
+                    onStopSimulation()
+                },
+                enabled = isSimulationStarted
+            ) {
+                Text(
+                    text = "Зупинка"
+                )
+            }
         }
     }
 }
