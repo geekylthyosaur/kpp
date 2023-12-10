@@ -12,6 +12,7 @@ import com.railway_station.simulator.config.Configuration;
 import com.railway_station.simulator.station_building.CashRegister;
 import com.railway_station.simulator.station_building.StationBuilding;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RailwaySimulator {
@@ -49,6 +50,7 @@ public class RailwaySimulator {
         for (var cashRegister: cashRegisters) {
             cashRegister.close();
         }
+        stationBuilding.setCashRegisters(new ArrayList<CashRegister>());
         if (clientGenerationThread != null) {
             clientGenerationThread.interrupt();
         }

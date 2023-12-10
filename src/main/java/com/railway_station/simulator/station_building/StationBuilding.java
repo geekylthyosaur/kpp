@@ -110,6 +110,10 @@ public class StationBuilding {
         openedCashRegister.open();
     }
 
+    public void setCashRegisters(List<CashRegister> cashRegisters) {
+        this.cashRegisters = cashRegisters;
+    }
+
     public List<CashRegister> getCashRegisters() {
         return cashRegisters;
     }
