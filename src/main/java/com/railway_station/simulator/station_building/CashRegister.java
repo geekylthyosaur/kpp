@@ -65,6 +65,7 @@ public class CashRegister {
                 try {
                     TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getServiceTimeMin());
                 } catch (InterruptedException e) {
+                    return;
                 }
                 continue;
             }
@@ -83,6 +84,7 @@ public class CashRegister {
             try {
                 TimeUnit.MILLISECONDS.sleep(servingTime * desiredTicketsCount);
             } catch (InterruptedException e) {
+                return;
             }
             CurrentTime endTime = new CurrentTime();
 

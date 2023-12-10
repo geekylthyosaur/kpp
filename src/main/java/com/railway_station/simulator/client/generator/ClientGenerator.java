@@ -37,6 +37,7 @@ public class ClientGenerator {
             try {
                 TimeUnit.MILLISECONDS.sleep(timeCreationInterval);
             } catch (InterruptedException e) {
+                return null;
             }
             if (stationBuilding.getClientsInsideCount() >= Configuration.getInstance().getMaxClientsInside()) {
                 continue;

@@ -52,6 +52,7 @@ public class StationBuilding {
             try {
                 TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getServiceTimeMax() * 15);
             } catch (InterruptedException e) {
+                return;
             }
             if (getClientsInsideCount() >= Configuration.getInstance().getMaxClientsInside()) {
                 continue;
@@ -64,6 +65,7 @@ public class StationBuilding {
             try {
                 TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getServiceTimeMax() * 20);
             } catch (InterruptedException e) {
+                return;
             }
 
             changeCashRegister(0, cashRegisterId);
@@ -71,6 +73,7 @@ public class StationBuilding {
             try {
                 TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getServiceTimeMax() * 5);
             } catch (InterruptedException e) {
+                return;
             }
         }
     }
