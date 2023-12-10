@@ -28,7 +28,7 @@ fun LogRowHeader(
         ) {
             Text(
                 modifier = Modifier.fillMaxWidth(1 / 10f),
-                text = "CL",
+                text = "Кл",
                 style = TextStyle.Default.copy(
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold
@@ -43,7 +43,7 @@ fun LogRowHeader(
             )
             Text(
                 modifier = Modifier.fillMaxWidth(1 / 9f),
-                text = "CR",
+                text = "Кас",
                 style = TextStyle.Default.copy(
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold
@@ -58,7 +58,7 @@ fun LogRowHeader(
             )
             Text(
                 modifier = Modifier.fillMaxWidth(0.5f),
-                text = "Start time",
+                text = "Старт. час",
                 style = TextStyle.Default.copy(
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold
@@ -73,7 +73,7 @@ fun LogRowHeader(
             )
             Text(
                 modifier = Modifier.fillMaxWidth(),
-                text = "End time",
+                text = "Кінц. час",
                 style = TextStyle.Default.copy(
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold

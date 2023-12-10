@@ -52,7 +52,7 @@ fun DrawScope.drawCashRegistersAndExits(
                 cashRegisters[c].apply {
                     this.xy = xy
                     this.roll = rollPointer
-                    this.clientQueueXY = xy.toClientQueueXY(canvasSize.width, canvasSize.height, entityWidth)
+                    this.clientQueueXY = xy.toClientQueueXY(canvasSize.width, canvasSize.height, rectWidth * 3f)
                     this.textXY = xy.toClientExitXY(canvasSize.width, canvasSize.height, rectWidth)
                 }
             }
@@ -109,7 +109,7 @@ fun DrawScope.updateCashRegistersAndExits(
         )
 
         if (cashRegister.highlightFrames > 0) cashRegister.highlightFrames--
-        cashRegister.clientQueueXY = xy.toClientQueueXY(canvasSize.width, canvasSize.height, entityWidth)
+        cashRegister.clientQueueXY = xy.toClientQueueXY(canvasSize.width, canvasSize.height, rectWidth * 3f)
         cashRegister.textXY = xy.toClientExitXY(canvasSize.width, canvasSize.height, rectWidth)
 
         drawCashRegisterText(

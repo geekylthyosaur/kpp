@@ -153,7 +153,7 @@ fun StationField(
                         }
 
                         cashRegisters[cashRegisterChange.closedCashRegisterId].clients.forEach {
-                            it.lastResult = CurveMovingResult(Offset.Zero, 0f, 0f)
+                            it.lastResult = CurveMovingResult.new()
                             it.startXY = it.xy
                             it.isServed = false
                             it.movingTargetIndex = cashRegisterChange.openedCashRegisterId
@@ -185,6 +185,7 @@ fun StationField(
                             }
                         } catch (e: Exception) {
                             println("Error moving clients: ${e.message}}")
+                            e.printStackTrace()
                         }
                     }
 
@@ -231,28 +232,20 @@ fun StationField(
                 clients = clients,
                 drawingOffset = drawingOffset
             )
-            updateCashRegistersAndExits(
-                textMeasurer = textMeasurer,
-                canvasSize = canvasSize,
-                cashRegisters = cashRegisters,
-                closedCashRegisterIds = closedCashRegisterIds,
-                exits = exits,
-                drawingOffset = drawingOffset,
-                internalCounter = internalCounter
-            )
-
             isEntitiesInitialized = true
-        } else {
-            updateCashRegistersAndExits(
-                textMeasurer = textMeasurer,
-                canvasSize = canvasSize,
-                cashRegisters = cashRegisters,
-                closedCashRegisterIds = closedCashRegisterIds,
-                exits = exits,
-                drawingOffset = drawingOffset,
-                internalCounter = internalCounter
-            )
+        }
 
+        updateCashRegistersAndExits(
+            textMeasurer = textMeasurer,
+            canvasSize = canvasSize,
+            cashRegisters = cashRegisters,
+            closedCashRegisterIds = closedCashRegisterIds,
+            exits = exits,
+            drawingOffset = drawingOffset,
+            internalCounter = internalCounter
+        )
+
+        if (isEntitiesInitialized) {
             synchronized(clientsLock) {
                 drawClients(clients)
             }

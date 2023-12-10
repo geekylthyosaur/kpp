@@ -21,7 +21,7 @@ data class DrawableClient(
     @Transient var startXY: Offset = Offset.Zero,
     @Transient var xy: Offset = Offset.Zero,
     @Transient var controlXY: Offset = Offset.Zero,
-    @Transient var lastResult: CurveMovingResult = CurveMovingResult(Offset.Zero, 0f, 0f)
+    @Transient var lastResult: CurveMovingResult = CurveMovingResult.new()
 ) {
 
     companion object {
@@ -33,8 +33,6 @@ data class DrawableClient(
             closedCashRegisterIds: List<Int>,
             onServe: (DrawableClient, DrawableCashRegister) -> Unit
         ) {
-            //TODO make them push each other
-
             for (index in 0 until clients.size) {
                 val client = clients[index]
 
@@ -61,17 +59,10 @@ data class DrawableClient(
                     cr.clientsMovingToIt++
                     client.controlXY = client.startXY.calculateControlXY(cr.clientQueueXY, centerXY)
                     client.movingTargetIndex = cashRegisters.indexOf(cr)
-//                    if (closedCashRegisterIds.contains(cr.id)) {
-//                        cashRegisters[0].clientsMovingToIt++
-//                        client.controlXY = client.startXY.calculateControlXY(cashRegisters[0].clientQueueXY, centerXY)
-//                        client.movingTargetIndex = 0
-//                    } else {
-//
-//                    }
                 } else if (closedCashRegisterIds.contains(client.movingTargetIndex)) {
                     client.startXY = client.xy
                     client.movingTargetIndex = -1
-                    client.lastResult = CurveMovingResult(Offset.Zero, 0f, 0f)
+                    client.lastResult = CurveMovingResult.new()
                     client.controlXY = Offset.Zero
                 } else if (!client.isServed && cashRegisters[client.movingTargetIndex].clientQueueXY.measureDistance(client.xy) < 24f) {
                     cashRegisters[client.movingTargetIndex].clients.add(client)
@@ -83,7 +74,7 @@ data class DrawableClient(
                         cashRegisterId = movingTargetIndex
                         movingTargetIndex = -1
                         controlXY = Offset.Zero
-                        lastResult = CurveMovingResult(Offset.Zero, 0f, 0f)
+                        lastResult = CurveMovingResult.new()
                     }
 
                     continue
@@ -91,13 +82,34 @@ data class DrawableClient(
 
                 if (client.isServed || client.movingTargetIndex < 0) continue
 
-//                client.xy = client.xy.moveToByLinear(cashRegisters[client.movingTargetIndex].clientQueueXY, moveSpeed)
                 client.apply {
                     val moveResult = startXY.moveToByCurve(cashRegisters[movingTargetIndex].clientQueueXY, controlXY, lastResult)
 
                     xy = moveResult.newXY
                     lastResult = moveResult
                 }
+
+                for (j in 0 until clients.size) {
+                    if (j != index && !clients[j].isServed && clients[j].xy.measureDistance(client.xy) < 32f) pushAwayClients(clients[j], client, centerXY, cashRegisters)
+                }
+            }
+        }
+
+        private fun pushAwayClients(first: DrawableClient, second: DrawableClient, centerXY: Offset, cashRegisters: List<DrawableCashRegister>) {
+            val pushNormal = first.xy != second.xy
+            val pushDistance = 4f
+
+            first.apply {
+                xy = if (pushNormal) xy.moveToByLinear(second.xy, -pushDistance) else xy.moveToRandomByLinear(pushDistance)
+                startXY = xy
+                controlXY = startXY.calculateControlXY(cashRegisters[movingTargetIndex].clientQueueXY, centerXY)
+                lastResult = CurveMovingResult.new()
+            }
+            second.apply {
+                xy = if (pushNormal) xy.moveToByLinear(first.xy, -pushDistance) else xy.moveToRandomByLinear(pushDistance)
+                startXY = xy
+                controlXY = startXY.calculateControlXY(cashRegisters[movingTargetIndex].clientQueueXY, centerXY)
+                lastResult = CurveMovingResult.new()
             }
         }
     }

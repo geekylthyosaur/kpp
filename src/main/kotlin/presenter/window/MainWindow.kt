@@ -103,6 +103,7 @@ fun MainWindow(
                         }
                     },
                     onStartSimulation = { minServingTime, maxServingTime, selectedStrategy ->
+                        servedClientLogs.clear()
                         serverApi.sendConfiguration(
                             Configuration(
                                 cashRegisterCount = cashRegistersCount + 1,
@@ -116,7 +117,6 @@ fun MainWindow(
                     },
                     onStopSimulation = {
                         serverApi.notifyAboutSimulationStop()
-                        servedClientLogs.clear()
                     }
                 )
             }
@@ -152,7 +152,7 @@ fun MainWindow(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(8.dp)
+                .padding(4.dp)
                 .clip(RoundedCornerShape(4f))
                 .background(lighterBackgroundColor)
                 .border(1.dp, Color.Black, RoundedCornerShape(4f)),

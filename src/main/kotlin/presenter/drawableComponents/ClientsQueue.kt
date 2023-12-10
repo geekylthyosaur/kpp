@@ -119,30 +119,33 @@ private fun DrawScope.drawClientsRow(
     xy: Offset,
     clients: List<DrawableClient>
 ) {
-    val size = clients.size
-    for (index in 0 until size) {
-        if (index >= clients.size) break
-        val reverseIndex = size - 1 - index
+    try {
+        val size = clients.size
+        for (index in 0 until size) {
+            val reverseIndex = size - 1 - index
 
-        drawClient(
-            radius = clientRadius,
-            center = when (size) {
-                1 -> xy
-                2 -> when (index) {
-                    0 -> xy.run {
-                        Offset(x - clientRadius / 2, y)
+            drawClient(
+                radius = clientRadius,
+                center = when (size) {
+                    1 -> xy
+                    2 -> when (index) {
+                        0 -> xy.run {
+                            Offset(x - clientRadius / 2, y)
+                        }
+                        else -> xy.run {
+                            Offset(x + clientRadius / 2, y)
+                        }
                     }
                     else -> xy.run {
-                        Offset(x + clientRadius / 2, y)
+                        Offset(x + 2 * clientRadius * (2f / size * index - 1), y)
                     }
-                }
-                else -> xy.run {
-                    Offset(x + 2 * clientRadius * (2f / size * index - 1), y)
-                }
-            },
-            type = ClientType.fromString(clients[reverseIndex].clientType),
-            shouldChangeSaturation = size to index
-        )
+                },
+                type = ClientType.fromString(clients[reverseIndex].clientType),
+                shouldChangeSaturation = size to index
+            )
+        }
+    } catch (e: Exception) {
+        println("Error drawing clients row: ${e.message}")
     }
 }
 
