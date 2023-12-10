@@ -6,8 +6,6 @@ public interface Client {
     String getName();
     int getDesiredTicketsCount();
     int getPriority();
-    ClientState getState();
     String getType();
-
 }
 

@@ -1,67 +1,70 @@
 package com.railway_station.simulator.simulator;
 
+import com.railway_station.simulator.client.Client;
+import com.railway_station.simulator.client.ClientType;
+import com.railway_station.simulator.client.CommonClient;
+import com.railway_station.simulator.client.decorator.Disabled;
+import com.railway_station.simulator.client.decorator.Military;
+import com.railway_station.simulator.client.decorator.WithChild;
+import com.railway_station.simulator.client.generation_strategy.GenerationStrategy;
 import com.railway_station.simulator.client.generator.ClientGenerator;
 import com.railway_station.simulator.config.Configuration;
+import com.railway_station.simulator.station_building.CashRegister;
 import com.railway_station.simulator.station_building.StationBuilding;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.List;
 
 public class RailwaySimulator {
-    private static RailwaySimulator instance;
-    private Configuration configuration;
-    private StationBuilding building;
-    private ClientGenerator clientGenerator;
+    private Thread clientGenerationThread;
 
-    private boolean isSimulationRunning;
-    Thread runningThread;
-
-    private RailwaySimulator() {}
-
-    public static RailwaySimulator getInstance() {
-        if (instance == null) {
-            instance = new RailwaySimulator();
-        }
-        return instance;
+    public RailwaySimulator(int cashRegistersCount, int minServingTime, int maxServingTime, String generationStrategy, int maxClientsCountInsideBuilding) {
+        Configuration config = Configuration.getInstance();
+        config.setCashRegistersCount(cashRegistersCount);
+        config.setMinClientServingTime(minServingTime);
+        config.setMaxClientServingTime(maxServingTime);
+        config.setClientGenerationStrategy(generationStrategy);
+        config.setMaxClientsCountInsideBuilding(maxClientsCountInsideBuilding);
     }
 
+
     public void startSimulation() {
-        int entiesCount = configuration.getEntryCount();
-        ExecutorService executorService = Executors.newFixedThreadPool(entiesCount);
-        for (int i = 0; i < entiesCount; i++) {
-            executorService.submit(() -> {
+        Configuration config = Configuration.getInstance();
+        StationBuilding stationBuilding = StationBuilding.getInstance();
 
-                // Your task logic here
-            });
-        }
+        int cashRegistersCount = config.getCashRegistersCount();
+        GenerationStrategy clientGenerationStrategy = config.getClientGenerationStrategy();
+        ClientGenerator clientGenerator = new ClientGenerator(clientGenerationStrategy);
 
-        Runnable runnable = () -> {
-
-        };
-        runningThread = new Thread(runnable);
-        runningThread.start();
-        isSimulationRunning = true;
-        // get config values from client
+        stationBuilding.createAndStartCashRegisters(cashRegistersCount);
+        this.clientGenerationThread = new Thread(clientGenerator::generate);
+        clientGenerationThread.start();
     }
 
     public void stopSimulation() {
-        runningThread.interrupt();
-        isSimulationRunning = false;
+        Configuration config = Configuration.getInstance();
+        StationBuilding stationBuilding = StationBuilding.getInstance();
+        Thread reservecCashRegisterThread = stationBuilding.getReservedCashRegisterThread();
+        reservecCashRegisterThread.interrupt();
+        List<CashRegister> cashRegisters = stationBuilding.getCashRegisters();
+        for (var cashRegister: cashRegisters) {
+            cashRegister.close();
+        }
+        if (clientGenerationThread != null) {
+            clientGenerationThread.interrupt();
+        }
     }
 
-    public Configuration getConfiguration() {
-        return configuration;
-    }
-
-    public void setConfiguration(Configuration configuration) {
-        this.configuration = configuration;
-    }
-
-    public StationBuilding getStationBuilding() {
-        return building;
-    }
-
-    public void setStationBuilding(StationBuilding stationBuilding) {
-        this.building = stationBuilding;
+    public Client createClientWithAlteredType(int clientId, String clientName, int desiredTicketsCount, String clientType) {
+        Client client = new CommonClient(clientId, clientName, desiredTicketsCount);
+        if (clientType == ClientType.disabled.name()) {
+            client = new Disabled(client);
+        }
+        if (clientType == ClientType.military.name()) {
+            client = new Military(client);
+        }
+        if (clientType == ClientType.with_child.name()) {
+            client = new WithChild(client);
+        }
+        return client;
     }
 }

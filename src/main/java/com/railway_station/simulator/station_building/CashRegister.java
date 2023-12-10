@@ -20,14 +20,12 @@ import java.util.concurrent.TimeUnit;
 
 public class CashRegister {
     private int id;
-    private boolean opened;
     private ConcurrentSkipListMap<Integer, Client> clients = new ConcurrentSkipListMap<>((a, b) -> b.compareTo(a)); // Descending order
     private Thread runningThread;
 
 
     public CashRegister(int id) {
         this.id = id;
-        this.opened = true;
     }
 
     private synchronized boolean thereAreClients() {
@@ -36,18 +34,6 @@ public class CashRegister {
 
     public synchronized int getId() {
         return id;
-    }
-
-    public synchronized void setId(int id) {
-        this.id = id;
-    }
-
-    public boolean isOpened() {
-        return opened;
-    }
-
-    public void toggleOpened() {
-        this.opened = !this.opened;
     }
 
     public void open(){
@@ -63,7 +49,7 @@ public class CashRegister {
         while (true) {
             if (!thereAreClients()) {
                 try {
-                    TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getServiceTimeMin());
+                    TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getMinClientServingTime());
                 } catch (InterruptedException e) {
                     return;
                 }
@@ -79,7 +65,7 @@ public class CashRegister {
             CurrentTime startTime = new CurrentTime();
 
             Configuration config = Configuration.getInstance();
-            long servingTime = (config.getServiceTimeMax() + config.getServiceTimeMin()) / 2;
+            long servingTime = (config.getMaxClientServingTime() + config.getMinClientServingTime()) / 2;
             int desiredTicketsCount = client.getDesiredTicketsCount();
             try {
                 TimeUnit.MILLISECONDS.sleep(servingTime * desiredTicketsCount);

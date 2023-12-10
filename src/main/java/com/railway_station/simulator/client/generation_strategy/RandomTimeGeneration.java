@@ -9,6 +9,6 @@ public class RandomTimeGeneration implements GenerationStrategy {
     public long getNextInterval() {
         Random random = new Random();
         Configuration config = Configuration.getInstance();
-        return config.getServiceTimeMin() + random.nextLong() % (config.getServiceTimeMax() - config.getServiceTimeMin() + 1);
+        return config.getMinClientServingTime() + random.nextLong() % (config.getMaxClientServingTime() - config.getMinClientServingTime() + 1);
     }
 }

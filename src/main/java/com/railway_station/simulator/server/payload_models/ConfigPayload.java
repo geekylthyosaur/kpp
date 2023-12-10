@@ -5,4 +5,5 @@ public class ConfigPayload {
     public int minServingTime;
     public int maxServingTime;
     public String generationStrategy;
+    public int maxClientsInsideBuilding;
 }

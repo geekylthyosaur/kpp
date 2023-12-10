@@ -7,55 +7,45 @@ import com.railway_station.simulator.client.generation_strategy.SineTimeGenerati
 
 public class Configuration {
     private static Configuration instance;
-    private int cashRegisterCount;
-    private int entryCount;
-    private int serviceTimeMin;
-    private int serviceTimeMax;
+    private int cashRegistersCount;
+    private int minClientServingTime;
+    private int maxClientServingTime;
     private GenerationStrategy clientGenerationStrategy;
-    private int maxClientsInside;
-    private Thread clientGenerationThread;
+    private int maxClientsCountInsideBuilding;
 
     private Configuration() {
     }
 
-    public int getCashRegisterCount() {
-        return cashRegisterCount;
+    public int getCashRegistersCount() {
+        return cashRegistersCount;
     }
 
-    public void setCashRegisterCount(int cashRegisterCount) {
-        this.cashRegisterCount = cashRegisterCount;
+    public void setCashRegistersCount(int cashRegistersCount) {
+        this.cashRegistersCount = cashRegistersCount;
     }
 
-    public int getEntryCount() {
-        return entryCount;
+    public int getMinClientServingTime() {
+        return minClientServingTime;
     }
 
-    public void setEntryCount(int entryCount) {
-        this.entryCount = entryCount;
+    public void setMinClientServingTime(int minClientServingTime) {
+        this.minClientServingTime = minClientServingTime;
     }
 
-    public int getServiceTimeMin() {
-        return serviceTimeMin;
+    public int getMaxClientServingTime() {
+        return maxClientServingTime;
     }
 
-    public void setServiceTimeMin(int serviceTimeMin) {
-        this.serviceTimeMin = serviceTimeMin;
+    public void setMaxClientServingTime(int maxClientServingTime) {
+        this.maxClientServingTime = maxClientServingTime;
     }
 
-    public int getServiceTimeMax() {
-        return serviceTimeMax;
+    public int getMaxClientsCountInsideBuilding() {
+        return maxClientsCountInsideBuilding;
     }
 
-    public void setServiceTimeMax(int serviceTimeMax) {
-        this.serviceTimeMax = serviceTimeMax;
-    }
-
-    public int getMaxClientsInside() {
-        return maxClientsInside;
-    }
-
-    public void setMaxClientsInside(int maxClientsInside) {
-        this.maxClientsInside = maxClientsInside;
+    public void setMaxClientsCountInsideBuilding(int maxClientsInside) {
+        this.maxClientsCountInsideBuilding = maxClientsInside;
     }
 
     public void setClientGenerationStrategy(String generationStrategy) {
@@ -78,16 +68,5 @@ public class Configuration {
             instance = new Configuration();
         }
         return instance;
-    }
-
-    public void setClientGenerationThread(Thread thread) {
-        clientGenerationThread = thread;
-    }
-
-    public Thread getClientGenerationThread() {
-        if (clientGenerationThread == null) {
-            return new Thread();
-        }
-        return clientGenerationThread;
     }
 }

@@ -2,6 +2,7 @@ package com.railway_station.simulator.client.generator;
 
 import com.google.gson.Gson;
 import com.railway_station.simulator.client.Client;
+import com.railway_station.simulator.client.ClientType;
 import com.railway_station.simulator.client.factory.ClientFactory;
 import com.railway_station.simulator.client.generation_strategy.GenerationStrategy;
 import com.railway_station.simulator.config.Configuration;
@@ -23,14 +24,6 @@ public class ClientGenerator {
         timeCreationInterval = this.currentStrategy.getNextInterval();
     }
 
-    public GenerationStrategy getCurrentStrategy() {
-        return currentStrategy;
-    }
-
-    public void setCurrentStrategy(GenerationStrategy currentStrategy) {
-        this.currentStrategy = currentStrategy;
-    }
-
     public Client generate() {
         ClientGenerator.generationRunning = true;
         while (true) {
@@ -39,7 +32,7 @@ public class ClientGenerator {
             } catch (InterruptedException e) {
                 return null;
             }
-            if (stationBuilding.getClientsInsideCount() >= Configuration.getInstance().getMaxClientsInside()) {
+            if (stationBuilding.getClientsInsideCount() >= Configuration.getInstance().getMaxClientsCountInsideBuilding()) {
                 continue;
             }
             String clientName = ClientFactory.generateRandomName();
@@ -62,15 +55,14 @@ public class ClientGenerator {
     }
 
     private String generateRandomClientType() {
-        List<String> clientTypes = new ArrayList<>(){};
-        clientTypes.add("common");
-        clientTypes.add("disabled");
-        clientTypes.add("military");
-        clientTypes.add("with_child");
+        List<ClientType> clientTypes = new ArrayList<>(){};
+        clientTypes.add(ClientType.common);
+        clientTypes.add(ClientType.disabled);
+        clientTypes.add(ClientType.military);
+        clientTypes.add(ClientType.with_child);
 
         Random random = new Random();
         int randomIndex = random.nextInt(clientTypes.size());
-        String clientType = clientTypes.get(randomIndex);
-        return clientType;
+        return clientTypes.get(randomIndex).name();
     }
 }

@@ -1,7 +1,6 @@
 package com.railway_station.simulator.client.decorator;
 
 import com.railway_station.simulator.client.Client;
-import com.railway_station.simulator.client.ClientState;
 
 public class ClientDecorator implements Client {
     private Client wrapee;
@@ -28,11 +27,6 @@ public class ClientDecorator implements Client {
     @Override
     public int getPriority() {
         return wrapee.getPriority();
-    }
-
-    @Override
-    public ClientState getState() {
-        return wrapee.getState();
     }
 
     @Override

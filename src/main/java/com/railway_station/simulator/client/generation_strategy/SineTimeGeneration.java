@@ -12,6 +12,6 @@ public class SineTimeGeneration implements GenerationStrategy {
         Configuration config = Configuration.getInstance();
 
         double t = Math.random() * range + min;
-        return (long) (config.getServiceTimeMin() + ((config.getServiceTimeMax() - config.getServiceTimeMin()) / 2) * (1 + Math.sin(2 * Math.PI * t)));
+        return (long) (config.getMinClientServingTime() + ((config.getMaxClientServingTime() - config.getMinClientServingTime()) / 2) * (1 + Math.sin(2 * Math.PI * t)));
     }
 }

@@ -26,7 +26,7 @@ public class StationBuilding {
         cashRegisters = new ArrayList<CashRegister>();
     }
 
-    public void createCashRegisters(int count) {
+    public void createAndStartCashRegisters(int count) {
         if (cashRegisters.isEmpty()) {
             CashRegister reservedCashRegister = new CashRegister(0);
             cashRegisters.add(reservedCashRegister);
@@ -50,11 +50,11 @@ public class StationBuilding {
     public void simulateReservedCashRegister(int cashRegistersCount) throws JsonProcessingException {
         while (true) {
             try {
-                TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getServiceTimeMax() * 15);
+                TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getMaxClientServingTime() * 15);
             } catch (InterruptedException e) {
                 return;
             }
-            if (getClientsInsideCount() >= Configuration.getInstance().getMaxClientsInside()) {
+            if (getClientsInsideCount() >= Configuration.getInstance().getMaxClientsCountInsideBuilding()) {
                 continue;
             }
             Random rand = new Random();
@@ -63,7 +63,7 @@ public class StationBuilding {
             changeCashRegister(cashRegisterId, 0);
 
             try {
-                TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getServiceTimeMax() * 20);
+                TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getMaxClientServingTime() * 20);
             } catch (InterruptedException e) {
                 return;
             }
@@ -71,7 +71,7 @@ public class StationBuilding {
             changeCashRegister(0, cashRegisterId);
 
             try {
-                TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getServiceTimeMax() * 5);
+                TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getMaxClientServingTime() * 5);
             } catch (InterruptedException e) {
                 return;
             }
@@ -110,14 +110,6 @@ public class StationBuilding {
         openedCashRegister.open();
     }
 
-    public void addCashRegister(CashRegister cashRegister) {
-        cashRegisters.add(cashRegister);
-    }
-
-    public boolean removeCashRegister(CashRegister cashRegister) {
-        return cashRegisters.remove(cashRegister);
-    }
-
     public List<CashRegister> getCashRegisters() {
         return cashRegisters;
     }
@@ -143,10 +135,6 @@ public class StationBuilding {
 
     public CashRegister getCashRegister(int id) {
         return cashRegisters.get(id);
-    }
-
-    public void setReservedCashRegisterThread(Thread thread) {
-        reservedCashRegisterThread = thread;
     }
 
     public Thread getReservedCashRegisterThread() {

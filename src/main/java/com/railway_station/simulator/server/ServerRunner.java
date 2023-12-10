@@ -5,31 +5,22 @@ import com.corundumstudio.socketio.listener.ConnectListener;
 import com.corundumstudio.socketio.listener.DataListener;
 import com.corundumstudio.socketio.listener.DisconnectListener;
 import com.railway_station.simulator.client.Client;
-import com.railway_station.simulator.client.CommonClient;
-import com.railway_station.simulator.client.decorator.Disabled;
-import com.railway_station.simulator.client.decorator.Military;
-import com.railway_station.simulator.client.decorator.WithChild;
-import com.railway_station.simulator.client.generator.ClientGenerator;
-import com.railway_station.simulator.config.Configuration;
 import com.railway_station.simulator.server.payload_models.ClientReachedCashRegisterEventObject;
 import com.railway_station.simulator.server.payload_models.ConfigPayload;
 import com.railway_station.simulator.server.payload_models.StopGeneration;
+import com.railway_station.simulator.simulator.RailwaySimulator;
 import com.railway_station.simulator.station_building.CashRegister;
 import com.railway_station.simulator.station_building.StationBuilding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class ServerRunner implements CommandLineRunner {
 
     private static ServerRunner instance;
-
     private final SocketIOServer server;
-
-
+    private RailwaySimulator simulator;
 
     @Autowired
     public ServerRunner(SocketIOServer server) {
@@ -61,38 +52,25 @@ public class ServerRunner implements CommandLineRunner {
         server.stop();
     }
 
+    // handler for "configuration" event
     private DataListener<ConfigPayload> onConfiguration() {
         return (client, configPayload, ackSender) -> {
-            Configuration config = Configuration.getInstance();
-            StationBuilding stationBuilding = StationBuilding.getInstance();
-            Thread reservecCashRegisterThread = stationBuilding.getReservedCashRegisterThread();
-            reservecCashRegisterThread.interrupt();
-            List<CashRegister> cashRegisters = stationBuilding.getCashRegisters();
-            for (var cashRegister: cashRegisters) {
-                cashRegister.close();
+            if (simulator != null) {
+                simulator.stopSimulation();
             }
-            Thread clientGenerationThread = config.getClientGenerationThread();
-            clientGenerationThread.interrupt();
 
-            int cashRegisterCount = configPayload.cashRegisterCount;
+            int cashRegistersCount = configPayload.cashRegisterCount;
             int minServingTime = configPayload.minServingTime;
             int maxServingTime = configPayload.maxServingTime;
             String generationStrategy = configPayload.generationStrategy;
+            int maxClientsCountInsideBuilding = configPayload.maxClientsInsideBuilding;
 
-            config.setEntryCount(cashRegisterCount);
-            config.setServiceTimeMin(minServingTime);
-            config.setServiceTimeMax(maxServingTime);
-            config.setClientGenerationStrategy(generationStrategy);
-            config.setMaxClientsInside(200);
-
-            stationBuilding.createCashRegisters(cashRegisterCount);
-            ClientGenerator clientGenerator = new ClientGenerator(config.getClientGenerationStrategy());
-            Thread newCientGenerationThread = new Thread(clientGenerator::generate);
-            config.setClientGenerationThread(newCientGenerationThread);
-            newCientGenerationThread.start();
+            simulator = new RailwaySimulator(cashRegistersCount, minServingTime, maxServingTime, generationStrategy, maxClientsCountInsideBuilding);
+            simulator.startSimulation();
         };
     }
 
+    // handler for "client_reached_cash_register" event
     private DataListener<ClientReachedCashRegisterEventObject> onClientReachedCashRegister() {
         return (client, eventPayload, ackSender) -> {
             int cashRegisterId = eventPayload.cashRegisterId;
@@ -101,33 +79,19 @@ public class ServerRunner implements CommandLineRunner {
             int desiredTicketsCount = eventPayload.desiredTicketsCount;
             String clientType = eventPayload.clientType;
 
-            Client stationClient = new CommonClient(clientId, clientName, desiredTicketsCount);
-            if (clientType == "disabled") {
-                stationClient = new Disabled(stationClient);
-            }
-            if (clientType == "military") {
-                stationClient = new Military(stationClient);
-            }
-            if (clientType == "with_child") {
-                stationClient = new WithChild(stationClient);
-            }
+            Client stationClient = simulator.createClientWithAlteredType(clientId, clientName, desiredTicketsCount, clientType);
+
             CashRegister cashRegister = StationBuilding.getInstance().getCashRegister(cashRegisterId);
             cashRegister.addClient(stationClient);
         };
     }
 
+    // handler for "stop_generation" event
     private DataListener<StopGeneration> onStopGeneration() {
         return (client, eventPayload, ackSender) -> {
-            Configuration config = Configuration.getInstance();
-            StationBuilding stationBuilding = StationBuilding.getInstance();
-            Thread reservecCashRegisterThread = stationBuilding.getReservedCashRegisterThread();
-            reservecCashRegisterThread.interrupt();
-            List<CashRegister> cashRegisters = stationBuilding.getCashRegisters();
-            for (var cashRegister: cashRegisters) {
-                cashRegister.close();
+            if (simulator != null) {
+                simulator.stopSimulation();
             }
-            Thread clientGenerationThread = config.getClientGenerationThread();
-            clientGenerationThread.interrupt();
         };
     }
 
