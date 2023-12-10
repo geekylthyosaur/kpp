@@ -198,6 +198,7 @@ fun StationField(
 
             synchronized(clientsLock) {
                 clients.clear()
+                closedCashRegisterIds.clear()
                 cashRegisters.forEach {
                     it.clients.clear()
                     it.clientsMovingToIt = 0
