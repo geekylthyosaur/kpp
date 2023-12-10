@@ -73,7 +73,6 @@ public class ServerRunner implements CommandLineRunner {
             }
             Thread clientGenerationThread = config.getClientGenerationThread();
             clientGenerationThread.interrupt();
-            config.setClientGenerationThread(null);
 
             int cashRegisterCount = configPayload.cashRegisterCount;
             int minServingTime = configPayload.minServingTime;
@@ -129,7 +128,6 @@ public class ServerRunner implements CommandLineRunner {
             }
             Thread clientGenerationThread = config.getClientGenerationThread();
             clientGenerationThread.interrupt();
-            config.setClientGenerationThread(null);
         };
     }
 
