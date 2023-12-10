@@ -72,8 +72,4 @@ public class ClientGenerator {
         int randomIndex = random.nextInt(clientTypes.size());
         return clientTypes.get(randomIndex).name();
     }
-
-    public void setMaxClientsCountReached(boolean isReached) {
-        maxClientsCountReached = isReached;
-    }
 }
