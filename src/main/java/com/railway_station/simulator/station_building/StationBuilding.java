@@ -146,9 +146,6 @@ public class StationBuilding {
     }
 
     public Thread getReservedCashRegisterThread() {
-        if (reservedCashRegisterThread == null) {
-            return new Thread();
-        }
         return reservedCashRegisterThread;
     }
 }

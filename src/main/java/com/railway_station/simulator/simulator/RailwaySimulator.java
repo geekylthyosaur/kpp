@@ -42,10 +42,11 @@ public class RailwaySimulator {
     }
 
     public void stopSimulation() {
-        Configuration config = Configuration.getInstance();
         StationBuilding stationBuilding = StationBuilding.getInstance();
         Thread reservecCashRegisterThread = stationBuilding.getReservedCashRegisterThread();
-        reservecCashRegisterThread.interrupt();
+        if (reservecCashRegisterThread != null) {
+            reservecCashRegisterThread.interrupt();
+        }
         List<CashRegister> cashRegisters = stationBuilding.getCashRegisters();
         for (var cashRegister: cashRegisters) {
             cashRegister.close();

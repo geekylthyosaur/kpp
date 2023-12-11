@@ -3,7 +3,6 @@ package com.railway_station.simulator.client.generator;
 import com.google.gson.Gson;
 import com.railway_station.simulator.client.Client;
 import com.railway_station.simulator.client.ClientType;
-import com.railway_station.simulator.client.factory.ClientFactory;
 import com.railway_station.simulator.client.generation_strategy.GenerationStrategy;
 import com.railway_station.simulator.config.Configuration;
 import com.railway_station.simulator.server.ServerRunner;
@@ -13,6 +12,11 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class ClientGenerator {
+    private static final String[] firstNames = {"Alice", "Bob", "Charlie", "David", "Emma", "Frank", "Grace", "Henry", "Ivy", "Jack", "Katherine", "Leo", "Mia", "Nathan", "Olivia"};
+    private static final String[] lastNames = {"Smith", "Johnson", "Williams", "Jones", "Brown", "Davis", "Miller", "Wilson", "Moore", "Taylor", "Anderson", "Thomas", "Jackson", "White", "Harris"};
+    private static final int minTicketsCount = 1;
+    private static final int maxTicketsCount = 3;
+
     private GenerationStrategy currentStrategy;
     long timeCreationInterval;
     public static boolean generationRunning = false;
@@ -41,8 +45,8 @@ public class ClientGenerator {
             } else {
                 maxClientsCountReached = false;
             }
-            String clientName = ClientFactory.generateRandomName();
-            int desiredTicketsCount = ClientFactory.generateDesiredTicketsCount();
+            String clientName = generateRandomName();
+            int desiredTicketsCount = generateDesiredTicketsCount();
             String clientType = generateRandomClientType();
 
             Map<String, Object> clientData = new HashMap<>();
@@ -71,5 +75,17 @@ public class ClientGenerator {
         Random random = new Random();
         int randomIndex = random.nextInt(clientTypes.size());
         return clientTypes.get(randomIndex).name();
+    }
+
+    public static String generateRandomName() {
+        Random random = new Random();
+        String firstName = firstNames[random.nextInt(firstNames.length)];
+        String lastName = lastNames[random.nextInt(lastNames.length)];
+        return firstName + " " + lastName;
+    }
+
+    public static int generateDesiredTicketsCount() {
+        Random random = new Random();
+        return random.nextInt(maxTicketsCount - minTicketsCount + 1) + minTicketsCount;
     }
 }
