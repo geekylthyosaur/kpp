@@ -22,6 +22,7 @@ public class CashRegister {
     private int id;
     private ConcurrentSkipListMap<Integer, Client> clients = new ConcurrentSkipListMap<>((a, b) -> b.compareTo(a)); // Descending order
     private Thread runningThread;
+    private Configuration config = Configuration.getInstance();
 
 
     public CashRegister(int id) {
@@ -49,7 +50,7 @@ public class CashRegister {
         while (true) {
             if (!thereAreClients()) {
                 try {
-                    TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getMinClientServingTime());
+                    TimeUnit.MILLISECONDS.sleep(config.getMinClientServingTime());
                 } catch (InterruptedException e) {
                     return;
                 }
@@ -64,7 +65,6 @@ public class CashRegister {
                     .create();;
             CurrentTime startTime = new CurrentTime();
 
-            Configuration config = Configuration.getInstance();
             long servingTime = (config.getMaxClientServingTime() + config.getMinClientServingTime()) / 2;
             int desiredTicketsCount = client.getDesiredTicketsCount();
             try {

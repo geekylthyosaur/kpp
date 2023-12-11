@@ -21,6 +21,7 @@ public class StationBuilding {
     private List<CashRegister> cashRegisters;
     private int clientsInsideCount;
     private Thread reservedCashRegisterThread;
+    private Configuration config = Configuration.getInstance();
 
     private StationBuilding() {
         cashRegisters = new ArrayList<CashRegister>();
@@ -50,11 +51,11 @@ public class StationBuilding {
     public void simulateReservedCashRegister(int cashRegistersCount) throws JsonProcessingException {
         while (true) {
             try {
-                TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getMaxClientServingTime() * 15);
+                TimeUnit.MILLISECONDS.sleep(config.getMaxClientServingTime() * 15);
             } catch (InterruptedException e) {
                 return;
             }
-            if (getClientsInsideCount() >= Configuration.getInstance().getMaxClientsCountInsideBuilding()) {
+            if (getClientsInsideCount() >= config.getMaxClientsCountInsideBuilding()) {
                 continue;
             }
             Random rand = new Random();
@@ -63,7 +64,7 @@ public class StationBuilding {
             changeCashRegister(cashRegisterId, 0);
 
             try {
-                TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getMaxClientServingTime() * 20);
+                TimeUnit.MILLISECONDS.sleep(config.getMaxClientServingTime() * 20);
             } catch (InterruptedException e) {
                 return;
             }
@@ -71,7 +72,7 @@ public class StationBuilding {
             changeCashRegister(0, cashRegisterId);
 
             try {
-                TimeUnit.MILLISECONDS.sleep(Configuration.getInstance().getMaxClientServingTime() * 5);
+                TimeUnit.MILLISECONDS.sleep(config.getMaxClientServingTime() * 5);
             } catch (InterruptedException e) {
                 return;
             }

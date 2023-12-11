@@ -20,6 +20,7 @@ public class ClientGenerator {
     private GenerationStrategy currentStrategy;
     long timeCreationInterval;
     public static boolean generationRunning = false;
+    private Configuration config = Configuration.getInstance();
     private StationBuilding stationBuilding = StationBuilding.getInstance();
     private int currentMaxClientId = -1;
     private boolean maxClientsCountReached = false;
@@ -37,10 +38,10 @@ public class ClientGenerator {
             } catch (InterruptedException e) {
                 return null;
             }
-            if (stationBuilding.getClientsInsideCount() >= Configuration.getInstance().getMaxClientsCountInsideBuilding()) {
+            if (stationBuilding.getClientsInsideCount() >= config.getMaxClientsCountInsideBuilding()) {
                 maxClientsCountReached = true;
                 continue;
-            } else if (maxClientsCountReached && (stationBuilding.getClientsInsideCount() >= (Configuration.getInstance().getMaxClientsCountInsideBuilding() * 0.7))) {
+            } else if (maxClientsCountReached && (stationBuilding.getClientsInsideCount() >= (config.getMaxClientsCountInsideBuilding() * 0.7))) {
                 continue;
             } else {
                 maxClientsCountReached = false;
